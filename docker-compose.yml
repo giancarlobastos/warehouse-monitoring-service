@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  central_monitoring:
+    environment:
+      - DOCKER_ENV=1
+    build: .
+    container_name: central_monitoring_service
+    command: ["java", "-cp", "/service/monitor-1.0-SNAPSHOT.jar", "com.betterbackendllc.monitor.service.CentralMonitoringService"]
+    ports:
+      - "4000:4000/udp"
+    networks:
+      - service_network
+
+  warehouse_service:
+    environment:
+      - DOCKER_ENV=1
+    build: .
+    container_name: warehouse_service
+    command: ["java", "-cp", "/service/monitor-1.0-SNAPSHOT.jar", "com.betterbackendllc.monitor.service.WarehouseService"]
+    depends_on:
+      - central_monitoring
+    ports:
+      - "3344:3344/udp"
+      - "3355:3355/udp"
+    networks:
+      - service_network
+
+networks:
+  service_network:
+    name: service_network
+    driver: bridge
